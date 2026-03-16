@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/yourrepo/lightweight-multi-container-app.git'
+                git 'https://github.com/poorna484/poorna484-multi_container_light.git'
             }
         }
 
