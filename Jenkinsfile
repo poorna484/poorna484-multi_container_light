@@ -8,6 +8,9 @@ pipeline {
     environment {
         REPO_URL = "https://github.com/poorna484/poorna484-multi_container_light.git"
         BRANCH = "main"
+        DOCKERHUB_USERNAME = "yourdockerhubusername"
+        IMAGE1 = "service1"
+        IMAGE2 = "service2"
     }
 
     stages {
@@ -18,29 +21,43 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Docker Login') {
             steps {
-                sh 'docker compose build'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub_credential',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
             }
         }
 
-        stage('Stop Old Containers') {
+        stage('Build Images') {
+            steps {
+                sh 'docker build -t $DOCKERHUB_USERNAME/$IMAGE1 ./service1'
+                sh 'docker build -t $DOCKERHUB_USERNAME/$IMAGE2 ./service2'
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                sh 'docker push $DOCKERHUB_USERNAME/$IMAGE1'
+                sh 'docker push $DOCKERHUB_USERNAME/$IMAGE2'
+            }
+        }
+
+        stage('Deploy Containers') {
             steps {
                 sh 'docker compose down || true'
-            }
-        }
-
-        stage('Run Containers') {
-            steps {
                 sh 'docker compose up -d'
             }
         }
 
-        stage('Clean Docker Images') {
+        stage('Cleanup') {
             steps {
                 sh 'docker image prune -f'
             }
         }
-
     }
 }
