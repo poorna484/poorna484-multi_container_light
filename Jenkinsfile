@@ -8,7 +8,7 @@ pipeline {
     environment {
         REPO_URL = "https://github.com/poorna484/poorna484-multi_container_light.git"
         BRANCH = "main"
-        DOCKERHUB_USERNAME = "yourdockerhubusername"
+        DOCKERHUB_USERNAME = "tejasvi3697"
         IMAGE1 = "service1"
         IMAGE2 = "service2"
     }
