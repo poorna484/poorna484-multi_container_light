@@ -1,21 +1,32 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
-        DOCKERHUB_REPO = "yourdockerhubusername/light-multi-app"
+        REPO_URL = "https://github.com/poorna484/poorna484-multi_container_light.git"
+        BRANCH = "main"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/poorna484/poorna484-multi_container_light.git'
+                git branch: "${BRANCH}", url: "${REPO_URL}"
             }
         }
 
-        stage('Build Images') {
+        stage('Build Docker Images') {
             steps {
                 sh 'docker compose build'
+            }
+        }
+
+        stage('Stop Old Containers') {
+            steps {
+                sh 'docker compose down || true'
             }
         }
 
@@ -25,10 +36,11 @@ pipeline {
             }
         }
 
-        stage('Clean Dangling Images') {
+        stage('Clean Docker Images') {
             steps {
                 sh 'docker image prune -f'
             }
         }
+
     }
 }
